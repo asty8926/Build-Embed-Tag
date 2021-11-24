@@ -2,7 +2,7 @@
 {=(prefix):!}
 {=(tagName):buildembed|be}
 
-{=(offsetFromUTC):1}
+{=(offsetFromUTC):0}
 
 {=(example):{prefix}{tagName} title:My title|desc:My description|thumb:https://i.imgur.com/0l0ZBCm.png|footer:My footer|color:blurple}
 
@@ -10,19 +10,45 @@
 {=(defaultFooter):{prefix}{tagName} title:My title|desc:My description|color:red}
 {=(defaultFooter):{example}}
 
+{=(COMMENT):Only the roles specified in there (separated by a comma) will be able to use that command. Leave empty if you don't mind.}
+{=(requiredRoles):}
+{=(COMMENT):The error message to output to the user when they don't have the required role. Leaving it empty will react to the user's message with the :warning: emoji, and leaving a space " " character won't return an error message at all}
+{=(requiredRolesErrorMessage): }
+
+
+{=(COMMENT):Adding or subtracting (depending on if the offset is positive or negative) the offset from UTC specified above to the current unix time.}
+{=(unixTimezone):{m:trunc({unix}+({offsetFromUTC}*3600))}}
+
+{=(defaultTime):{strf({unixTimezone}):%FT%T.000Z}}
+
 {=(delimiter):|}
 
 {=(r):replace}
 {=(i):index}
 {=(l):lower}
 {=(j):join}
+{=(ct):contains}
 {=(fb):None}
-{=(d):{delimiter}}
+{=(del):{delimiter}}
 {=(pl):%&$}
+{=(uav):{user(avatar)}}
+{=(sic):{server(icon)}}
+
+{=(COMMENT):Curly brace snippet}
+{=( ):{ }}
+{=(b):{ (1)}}
+{=(d):{ (2)}}
+
+{=(emojiPrefix):<emoji}
+
+{=(isAChannelSpecified):{in(true true):{in(<#):{1}} {in(>):{1}}}}
+{=(channelToSend):{{r}(false,{channel(id)}):{{r}(true,{1}):{isAChannelSpecified}}}}
+
 
 {=(COMMENT):Separating arguments into their own list variables. Replaces the delimiter with ~ in the process.}
-{=(sanitizedArgs):{{r}(",\"):{args}}}
-{=(jargs):{{r}({d},~):!~{sanitizedArgs}}}
+{=(sanitizedArgs):{{r}({emojiPrefix},<:emoji:):{{r}(",\"):{args}}}}
+{=(argumentToParse):{{if({isAChannelSpecified}==true):sanitizedArgs(2+)|sanitizedArgs}}}
+{=(jargs):{{r}({del},~):!~{argumentToParse}}}
 {=(a1):{list(1):{jargs}}}
 {=(a2):{list(2):{jargs}}}
 {=(a3):{list(3):{jargs}}}
@@ -34,10 +60,11 @@
 {=(a9):{list(9):{jargs}}}
 {=(a10):{list(10):{jargs}}}
 {=(a11):{list(11):{jargs}}}
+{=(a12):{list(12):{jargs}}}
 
-{=(fieldsName):image title titleurl name nameicon nameurl color description thumbnail footer footericon {fb} !}
+{=(fieldsName):image title titleurl name nameicon nicon nameurl nurl color colour clr description thumbnail footer footericon ficon timestamp {fb} !}
 
-{=(COMMENT):Processes a substring matching on the keyword/field name of every argument up to the 10th and returns it.}
+{=(COMMENT):Processes a substring matching on the keyword/field name of every argument up to the 12th and returns it.}
 {=(COMMENT):Raw argument word, substring matched word, and then word content}
 {=(w1):{{l}:{a1(1)::}}}
 {=(word1):{fieldsName({{i}({w1}):{{r}({w1},. {w1} .):{fieldsName}}})}}
@@ -83,18 +110,31 @@
 {=(word11):{fieldsName({{i}({w11}):{{r}({w11},. {w11} .):{fieldsName}}})}}
 {=(content11):{a11(2+)::}}
 
-{=(COMMENT):Fields variables from input}
-{=(f.image):}
-{=(f.title):}
-{=(f.titleurl):}
+{=(w12):{{l}:{a12(1)::}}}
+{=(word12):{fieldsName({{i}({w12}):{{r}({w12},. {w12} .):{fieldsName}}})}}
+{=(content12):{a12(2+)::}}
+
+{=(COMMENT):Fields variables from input. This is where we call our default values as their content if any.}
+{=(COMMENT):Order of the variables assignments in the same order as the embed builder.}
+
 {=(f.name):}
 {=(f.nameicon):}
 {=(f.nameurl):}
-{=(f.color):{defaultColor}}
+
+{=(f.title):}
+{=(f.titleurl):}
+
 {=(f.description):}
+
+{=(f.image):}
 {=(f.thumbnail):}
+
 {=(f.footer):}
 {=(f.footericon):}
+
+{=(f.timestamp):}
+
+{=(f.color):{defaultColor}}
 
 {=(f.{word1}):{content1}}
 {=(f.{word2}):{content2}}
@@ -106,16 +146,39 @@
 {=(f.{word8}):{content8}}
 {=(f.{word9}):{content9}}
 {=(f.{word10}):{content10}}
+{=(f.{word11}):{content11}}
+{=(f.{word12}):{content12}}
 
-{=(COMMENT):Spaces out the color, then removes the first added space}
+{=(COMMENT):Allowing the word "now" to be used for the "timestamp" field.}
+{=(f.timestamp):{if({{l}:{f.timestamp}}==now):{{r}(now,{defaultTime}):{{l}:{f.timestamp}}}}}
+
+{=(COMMENT):Although I'm allowing "self" and other keywords for user color, this is allowing the custom user color TagScript block to work beforehand.}
+{=(f.color):{{r}({b}user(color){d},{user(color)}):{{j}():{f.color}}}}
+
+{=(COMMENT):Allowing custom blocks like user avatar and server icon to be used in image fields as arguments.}
+{=(f.image):{{r}({b}icon{d},{sic}):{{r}({b}server(icon){d},{b}icon{d}):{{r}({b}avatar{d},{uav}):{{r}({b}user(avatar){d},{b}avatar{d}):{f.image}}}}}}
+
+{=(f.nameicon):{{r}({b}icon{d},{sic}):{{r}({b}server(icon){d},{b}icon{d}):{{r}({b}avatar{d},{uav}):{{r}({b}user(avatar){d},{b}avatar{d}):{f.nameicon}}}}}}
+{=(f.nicon):{{r}({b}icon{d},{sic}):{{r}({b}server(icon){d},{b}icon{d}):{{r}({b}avatar{d},{uav}):{{r}({b}user(avatar){d},{b}avatar{d}):{f.nico}}}}}}
+
+{=(f.thumbnail):{{r}({b}icon{d},{sic}):{{r}({b}server(icon){d},{b}icon{d}):{{r}({b}avatar{d},{uav}):{{r}({b}user(avatar){d},{b}avatar{d}):{f.thumbnail}}}}}}
+
+{=(f.footericon):{{r}({b}icon{d},{sic}):{{r}({b}server(icon){d},{b}icon{d}):{{r}({b}avatar{d},{uav}):{{r}({b}user(avatar){d},{b}avatar{d}):{f.footericon}}}}}}
+
+{=(COMMENT):Allowing custom blocks in text fields.}
+{=(f.title):{{r}({b}channel{d},{channel}):{{r}({b}server{d},{server}):{{r}({b}user{d},{user}):{f.title}}}}}
+{=(f.name):{{r}({b}channel{d},{channel}):{{r}({b}server{d},{server}):{{r}({b}user{d},{user}):{f.name}}}}}
+{=(f.footer):{{r}({b}channel{d},{channel}):{{r}({b}server{d},{server}):{{r}({b}user{d},{user}):{f.footer}}}}}
+{=(f.description):{{r}({b}channel(mention){d},{channel(mention)}):{{r}({b}channel{d},{channel}):{{r}({b}server{d},{server}):{{r}({b}mention{d},{user(mention)}):{{r}({b}user(mention){d},{b}mention{d}):{{r}({b}user{d},{user}):{f.description}}}}}}}}
+
+{=(COMMENT):Spaces out the color, then removes the first and last added space}
 {=(sepColor):{{r}(, ):{f.color}}}
 {=(sepColor):{sepColor(2+)}}
 {=(sepColor):{sepColor(+-1)}}
 {=(COMMENT):Sanitize our color to only keep our first 6 characters of it, remove the # sign if any and make every letter uppercase}
 {=(sanitizedColor):{{r}(#,):{lower:{{j}():{sepColor}}}}}
 
-{=(COMMENT):Dictionary of color names, returned as hex.
-https://htmlcolorcodes.com/color-names/}
+{=(COMMENT):Dictionary of color names, returned as hex. https://htmlcolorcodes.com/color-names/}
 {=(cl.{f.color}):{sanitizedColor(+6)}}
 {=(cl.white):FFFFFF}
 {=(cl.silver):C0C0C0}
@@ -180,8 +243,54 @@ https://htmlcolorcodes.com/color-names/}
 	"color": {finalDecimalColor},
 	"footer": {
 		"icon_url": "{f.footericon}",
-		"text": "{f.footer}"}
+		"text": "{f.footer}"
+		},
+	"timestamp": "{f.timestamp}"
 		}}
+
+{=(allFields):{{j}():{{r}({fb},):{word1} {word2} {word3} {word4} {word5} {word6} {word7} {word8} {word9} {word10} {word11} {word12}}}}
+
+{=(areAllFieldsEmpty):{{ct}({pl}):{allFields}{pl}}}
+{=(isNoArg):{{ct}({pl}):{a1}{pl}}}
+
+{=(errJSON):{ "description": "No field detected.\nExample:
+	  `{example}`",
+	  "color": {finalDecimalColor}
+  }
+}
+
+{=(errJSON):{ "fields": [
+	{ "name": 
+		"Features","value":"• **Substring Matching** on each field name (`t` works for `title`, `desc` for `description`, etc.)\n• Fields names can all be filled and in **any order** of your choice!\n• Built-in **error messages**, to let you know what's wrong and when.\n• Ability to specify a color name, hexadecimal color, or even `self` for your own color.\n• **Custom-made blocks** to use in some fields, like user `{avatar}` and server `{icon}` in image fields, `{server}` and `{channel}` in text fields, and `{channel(mention)}` in the Description field.\n• Even for non-Nitro users, ability to use **custom emojis** **from other servers**, by using `<emoji` followed by the **emoji ID** and `>`. For example, `<emoji803680930841362442>` would display <:TagScript:803680930841362442>.\n","inline":false
+	},
+	{ "name":
+			"Usage",
+		"value":
+			"`!be fieldName:Content|fieldName:Content`\n```yaml\n!be t:My title|d:My description|thumb:https://i.imgur.com/0l0ZBCm.png|image:https://i.imgur.com/0l0ZBCm.png|f:My footer|color:blurple|time:now\n```",
+		"inline":
+			false
+	}],
+	"title":
+		"Build A Custom Embed",
+	"description":
+		"Forget about the built-in `!embed` and `!cembed` commands, that are not customizable nor very user friendly, as they require specific syntax, and the latter a minimum knowledge of what JSON even is, which is not the average person.",
+	"image":{
+		"url":
+			"https://cdn.discordapp.com/attachments/337040974415003649/912865596012630086/buildembed_graphics_by_Asty8926.png"
+		},
+		"color":3092790,
+		"footer": {
+			"text":"Custom command made with ♥ for TagScript by Asty'#8926"
+		}
+	}
+}
+
+{=(JSONs):errJSON finalJSON}
+{=(shouldErr):{in(true):{areAllFieldsEmpty} {isNoArg}}}
+
+{=(JSONIdx):{{i}(true):! {shouldErr} true}}
+
+{=(JSONToSend):{{JSONs({JSONIdx})}}}
 
 {=(debug):__Debug:__
 jargs: {jargs}
@@ -196,6 +305,8 @@ jargs: {jargs}
 8: {w8} `{word8}` {content8}
 9: {w9} `{word9}` {content9}
 10: {w10} `{word10}` {content10}
+11: {w11} `{word11}` {content11}
+12: {w12} `{word12}` {content12}
 
 f.image: {f.image}
 f.title: {f.name}
@@ -215,11 +326,23 @@ f.thumbnail: {f.thumbnail}
 f.footer: {f.footer}
 f.footericon: {f.footericon}
 
-Example:```css
+f.timestamp: {f.timestamp}
+}
+
+{=(testing):Example:```css
 {example}```
 FINAL JSON:```json
 {finalJSON}
+```}
+
+{=(debug2):__Debug 2:__
+areAllFieldsEmpty: {areAllFieldsEmpty}
+isNoArg: {isNoArg}
+
+JSONToSend:```json
+{JSONToSend}
 ```
 }
-
-{c:cembed {channel(id)} {finalJSON}}
+{c:cembed {channelToSend} {JSONToSend}}
+{override}
+{require({requiredRolesErrorMessage} ):{requiredRoles}}
