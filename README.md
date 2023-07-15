@@ -6,7 +6,7 @@ Today I'm presenting you one of the most useful tag I've made:
 
 > This is why out of frustration and as a huge QoL (Quality of Life) improvement for you all, I built this `buildembed` custom command (`be` for short), which is very easy and convenient to use, while being powerful!
 
-**Features**
+## **Features**
 
 • Each field name has **Substring Matching**, meaning you can for example type `t` for `title`, `desc` for `description`, `c` or `col` for `color` and it will still recognize it!
 
@@ -19,16 +19,17 @@ Today I'm presenting you one of the most useful tag I've made:
 • Even if you don't have Nitro, ability to use **custom emojis** **from other servers**, by using `<emoji` (literally) followed by the **emoji ID** and `>`.
    For example, `<emoji811624815714500658>` would display :carlnap:.
 
-:keyboard: **Usage**
+## :keyboard: **Usage**
 ```css
 !be fieldName:Content|fieldName:Content|fieldName:Content...
 ```
 
-📥 **Import link**
+## 📥 **Import link**
 
 **<https://carl.gg/t/1157946>**
 
-🖼️ **Available Fields and Colors**
+## 🖼️ **Available Fields and Colors**
+
 ![image](https://i.imgur.com/uTQ7q0i.png)
 ![image](https://i.imgur.com/XX5NWSI.png)
 
@@ -53,14 +54,13 @@ Today I'm presenting you one of the most useful tag I've made:
 • Ensure that the `cembed` command is **enabled** in your server, as it is the command that this tag is using under the hood to build the final embed!
    Use `!enable cembed` to enable it if it wasn't.
 
-__A full real example of how powerful the command can be:__
-**Simple Embed**
+## __A full real example of how powerful the command can be:__
+### **Simple Embed**
 ```yaml
 !be t:My title|d:My description|i:https://i.imgur.com/0l0ZBCm.png
 ```
-**Advanced Embed** 
-![image](https://i.imgur.com/mQFkraP.png)
-
+### **Advanced Embed**
 ```yaml
 !be name:{user}|nameicon:{avatar}|t:Carl-bot|titleurl:https://carl.gg|d:Hi <emoji811624815714500658>|color:blurple|f:I am at the bottom|footericon:{icon}|thumb:https://i.imgur.com/0l0ZBCm.png|image:https://i.imgur.com/0l0ZBCm.png|time:now
 ```
+![image](https://i.imgur.com/mQFkraP.png)
